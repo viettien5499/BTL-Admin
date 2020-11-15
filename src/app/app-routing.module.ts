@@ -1,31 +1,29 @@
+import { MainComponent } from './main/main.component';
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
-import { DashboardComponent } from './dashboard/dashboard.component';
+import { Routes, RouterModule, PreloadAllModules } from '@angular/router';
 import { LoginComponent } from './login/login.component';
-import { RegisterComponent } from './register/register.component';
-import { SanphamComponent } from './sanpham/sanpham.component';
-import { LayoutComponent } from './share/layout/layout.component';
+import { FileNotFoundComponent } from './shared/file-not-found/file-not-found.component';
+import { AuthGuard } from './lib/auth.guard';
 
 const routes: Routes = [
-  { path: '',
-    redirectTo: 'dashboard',
-    pathMatch: 'full',
-  },
   {
     path: '',
-    component: LayoutComponent,
-    children:
-    [
-      { path: 'dashboard', component: DashboardComponent },
-      { path: 'sanpham', component: SanphamComponent },
-    ]
+    loadChildren: () => import('./main/main.module').then((m) => m.MainModule),
+    canActivate: [AuthGuard]
   },
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
+  {
+    path: 'login',
+    component: LoginComponent,
+  },
+  {
+    path: '**',
+    component: FileNotFoundComponent,
+  }, 
 ];
-
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  imports: [
+    RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules }),
+  ],
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

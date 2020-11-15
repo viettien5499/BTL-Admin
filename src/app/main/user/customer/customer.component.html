@@ -1,0 +1,192 @@
+<div class="breadcrumbs" id="breadcrumbs">
+    <ul class="breadcrumb">
+      <li>
+        <i class="ace-icon fa fa-home home-icon"></i>
+        <a href="#">Trang chủ</a>
+      </li>
+      <li class="active">Quản lý khách hàng</li>
+    </ul>
+    <div class="nav-search">
+      <p class="pull-right no-margin">
+        <a (click)="createModal()" class="btn btn-success btn-xs">
+          <i class="fa fa-plus"></i>&nbsp;Thêm
+        </a>
+      </p>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-xs-12">
+      <!-- PAGE CONTENT BEGINS -->
+      <p-panel header="Tìm kiếm" [style]="{'margin-top': '2px'}">
+        <form class="form-horizontal" role="form" [formGroup]="formsearch"  (ngSubmit)="search()">
+          <!-- <div class="form-group">
+            <label class="col-sm-1 control-label no-padding-right"> Mã loại:</label>
+            <div class="col-sm-11">
+              <input formControlName="Maloai"  type="text" placeholder="Nhập mã loại" style="width: 100%;" />
+            </div>
+          </div> -->
+          <div class="form-group">
+            <label class="col-sm-1 control-label no-padding-right"> Tên khách hàng</label>
+            <div class="col-sm-11">
+              <input formControlName="Hoten"  type="text" placeholder="Nhập tên khách hàng" style="width: 100%;" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-1 control-label no-padding-right"></label>
+            <div class="col-sm-11">
+              <button (click)="search()" class="btn btn-sm btn-primary">Tìm kiếm</button>
+            </div>
+          </div>
+        </form> 
+      </p-panel>
+      <p-table selectionMode="single" [value]="items" styleClass="p-datatable-gridlines">
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 70px; text-align: center;">STT</th>
+            <th style="width: 15%; text-align: left;">Mã khách hàng</th>
+            <th style="width: 20%; text-align: left;">Họ tên</th>
+            <th style="text-align: left;">Giới tính</th>
+            <th style="width: 15%; text-align: left;">Email</th>
+            <th style="width: 130px; text-align: left;">Password</th>
+            <th style="width: 130px; text-align: left;">SĐT</th>
+            <th style="width: 130px; text-align: left;">Địa chỉ</th>
+            <th style="width: 120px; text-align: left;">Tác vụ</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item  let-i="rowIndex">
+       
+          <tr>
+            <td style="width: 70px; text-align: center;">{{ i + 1 }}</td>
+            <td>{{ item.makh}}</td>
+            <td>{{ item.hoten }}</td>
+            <td>{{ item.gioitinh }}</td>
+            <td>{{ item.email }}</td>
+            <td>{{ item.password }}</td>
+            <td>{{ item.sdt }}</td>
+            <td>{{ item.diachi }}</td>
+            <td class="action-col" >
+              <div class="btn-group">
+                <button title="" class="btn btn-xs btn-white btn-default"  (click)="openUpdateModal(item)">  
+                  <i class="ace-icon fa fa-edit"></i>
+                </button>
+                <button title="" class="btn btn-xs btn-white btn-default" (click)="onDelete(item)">
+                  <i class="ace-icon fa fa-trash"></i>
+                </button>
+              </div>  
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+      <!-- PAGE CONTENT ENDS -->
+    </div>
+    <div class="col-xs-12" style="text-align: right;">
+      <ngb-pagination [collectionSize]="totalRecords" [pageSize]="pageSize" [(page)]="page" [maxSize]="10" [rotate]="true" (pageChange)="loadPage($event)"></ngb-pagination>
+    </div>
+    <!-- /.col -->
+  </div>
+  
+  
+  <!-- /.row -->
+  <div *ngIf="showUpdateModal" id="createItemModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg full-height-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4  *ngIf="isCreate" class="modal-title">Nhập thông tin khách hàng</h4>
+          <h4 *ngIf="!isCreate" class="modal-title">Sửa thông tin khách hàng</h4>
+        </div>
+        <form *ngIf="doneSetupForm" [formGroup]="formdata"  (ngSubmit)="onSubmit(formdata.value)" class="form-horizontal utehy-form">
+          <div class="modal-body no-padding">
+            <div class="form-group">
+              <label class="col-sm-2 control-label no-padding-right"> Mã khách hàng(<span style="color: red;">*</span>)</label>
+              <div class="col-sm-5">
+                <input type="text" placeholder="Mã khách hàng" readonly style="cursor: not-allowed;" [value]="item.makh" formControlName="Makh"/>
+              </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label no-padding-right"> Họ tên(<span style="color: red;">*</span>)</label>
+                <div class="col-sm-5">
+                  <input type="text" formControlName="Hoten" placeholder="Họ tên" />
+                  <div *ngIf="submitted && f.Hoten.errors" class="invalid-feedback">
+                    <div *ngIf="f.Hoten.errors.required">Họ tên là bắt buộc</div>
+                </div>
+                </div>
+                <label class="col-sm-2 control-label no-padding-right"> Giới tính(<span style="color: red;">*</span>)</label>
+                <div class="col-sm-3">
+                  <p-dropdown [options]="genders" formControlName="Gioitinh" [style]="{'width':'100%'}"></p-dropdown>
+                  <div *ngIf="submitted && f.Gioitinh.errors" class="invalid-feedback">
+                    <div *ngIf="f.Gioitinh.errors.required">Giới tính là bắt buộc</div>
+                  </div>
+                </div>
+              </div>
+
+            <div class="form-group">
+              <label class="col-sm-2 control-label no-padding-right"> Email(<span style="color: red;">*</span>)</label>
+              <div class="col-sm-5">
+                <input type="email" placeholder="Email" formControlName="Email"/>
+                <div *ngIf="submitted && f.Email.errors" class="invalid-feedback">
+                  <div *ngIf="f.Email.errors.required">Email là bắt buộc</div>
+                  <div *ngIf="f.Email.errors.Email">Địa chỉ email không đúng định dạng</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-2 control-label no-padding-right"> Mật khẩu(<span style="color: red;">*</span>)</label>
+                <div class="col-sm-5">
+                  <input type="password" formControlName="Password" placeholder="Mật khẩu" />
+                  <div *ngIf="submitted && f.password.errors" class="invalid-feedback">
+                    <div *ngIf="f.Password.errors.required">Mật khẩu là bắt buộc</div>
+                    <div *ngIf="f.Password.errors.Password">Độ dài mật khẩu tối thiệu phải là 6 ký tự và phải chứa ký tự đặc biệt @#!$%&*</div>
+                </div>
+                </div> 
+            </div> 
+
+            <div class="form-group">
+                <label class="col-sm-2 control-label no-padding-right"> Nhập lại mật khẩu(<span style="color: red;">*</span>)</label>
+                <div class="col-sm-5">
+                  <input type="password" formControlName="nhaplaimatkhau" placeholder="Nhập lại mật khẩu" />
+                  <div *ngIf="submitted && f.nhaplaimatkhau.errors" class="invalid-feedback">
+                    <div *ngIf="f.nhaplaimatkhau.errors.required">Xác nhận lại mật khẩu là bắt buộc</div>
+                    <div *ngIf="f.nhaplaimatkhau.errors.mustMatch">Xác thực lại mật khẩu không đúng</div>
+                </div>
+                </div>
+            </div>
+  
+            <div class="form-group">
+              <label class="col-sm-2 control-label no-padding-right">SĐT (<span style="color: red;">*</span>)</label>
+              <div class="col-sm-5">
+                <input type="number" placeholder="Số điện thoại" formControlName="SDT"/>
+                <div *ngIf="submitted && f.SDT.errors" class="invalid-feedback">
+                  <div *ngIf="f.SDT.errors.required">Số điện thoại là bắt buộc</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-2 control-label no-padding-right"> Địa chỉ(<span style="color: red;">*</span>)</label>
+                <div class="col-sm-5">
+                  <input type="text" placeholder="Địa chỉ" formControlName="Diachi"/>
+                  <div *ngIf="submitted && f.Diachi.errors" class="invalid-feedback">
+                    <div *ngIf="f.Diachi.errors.required">Địa chỉ là bắt buộc</div>
+                  </div>
+                </div>
+              </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default btn-sm" (click)="Reset()">
+            <i class="fa fa-bell"></i> Làm mới
+          </button>
+          <button type="submit" class="btn btn-success btn-sm btn-submit">
+            <i class="fa fa-save"></i> Đồng ý
+          </button>
+          <button type="button" class="btn btn-default btn-sm" (click)="closeModal()">
+            <i class="fa fa-times"></i> Đóng lại
+          </button>
+        </div>
+      </form>  
+      </div>
+    </div>
+  </div>
+  
